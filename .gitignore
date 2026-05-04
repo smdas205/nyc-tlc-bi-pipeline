@@ -1,0 +1,12 @@
+# Ignore these files during Github upload
+test-json/*.json
+*_schemas.json
+pyrightconfig.json
+.zed/
+parquet_test.py
+test_file.py
+data/raw/
+data/tmp/
+data/processed/
+airflow/logs
+airflow/plugins
