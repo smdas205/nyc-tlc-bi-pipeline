@@ -20,7 +20,7 @@ with DAG(
     start_date=datetime(2022, 1, 1),
     schedule="@monthly",
     max_active_runs=1,
-    catchup=True,
+    catchup=False,
 ) as dag:
 
     def download_yellow(**context):

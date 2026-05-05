@@ -24,7 +24,7 @@ with DAG(
     schedule_interval="@monthly",
     max_active_runs=1,
     max_active_tasks=1,
-    catchup=True,
+    catchup=False,
 ) as dag:
     # ── Yellow ────────────────────────────────────────────────────────────────
     with TaskGroup("yellow") as tg_yellow:
