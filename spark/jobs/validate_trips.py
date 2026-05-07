@@ -1,14 +1,12 @@
-# validate_trips.py
-
+# validate_trips.py is used to validate the enriched PARQUET file
 import sys
 
 import pyspark.sql.functions as F
 from io_utils import get_spark, read_parquet
 from pyspark.sql import DataFrame
 
-# ── Shared helpers ────────────────────────────────────────────────────────────
 
-
+# Function to check for no nulls in enriched file for specific rows
 def _assert_no_nulls(df: DataFrame, cols: list[str], taxi_type: str) -> None:
     for col in cols:
         null_count = df.filter(F.col(col).isNull()).count()
@@ -18,6 +16,7 @@ def _assert_no_nulls(df: DataFrame, cols: list[str], taxi_type: str) -> None:
             )
 
 
+# Function to check if values are between a certain min value and max value
 def _assert_between(
     df: DataFrame, col: str, min_val: float, max_val: float, taxi_type: str
 ) -> None:
@@ -30,6 +29,7 @@ def _assert_between(
         )
 
 
+# Function to check for row count to match min rows standard
 def _assert_min_rows(df: DataFrame, threshold: int, taxi_type: str) -> None:
     row_count = df.count()
     if row_count < threshold:
@@ -38,9 +38,7 @@ def _assert_min_rows(df: DataFrame, threshold: int, taxi_type: str) -> None:
         )
 
 
-# ── Public validators ─────────────────────────────────────────────────────────
-
-
+# Function to check if enriched yellow, green and HVFHV datasets are valid
 def expect_metered(df: DataFrame, taxi_type: str) -> DataFrame:
     _assert_no_nulls(
         df,
@@ -53,6 +51,7 @@ def expect_metered(df: DataFrame, taxi_type: str) -> DataFrame:
     return df
 
 
+# Function to check if enriched FHV dataset is valid
 def expect_fhv(df: DataFrame) -> DataFrame:
     _assert_no_nulls(df, ["pickup_datetime"], "fhv")
     _assert_between(df, "trip_duration_min", 0.5, 600, "fhv")
@@ -60,8 +59,7 @@ def expect_fhv(df: DataFrame) -> DataFrame:
     return df
 
 
-# ── Entrypoint ────────────────────────────────────────────────────────────────
-
+# Main Function, DAG arguments arrive here.
 if __name__ == "__main__":
     trip_type = sys.argv[1]
     input_path = sys.argv[2]
