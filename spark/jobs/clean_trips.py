@@ -1,3 +1,5 @@
+# clean_files.py is used to clean PARQUET files
+# Useful to conform to CANONICAL_SCHEMA
 import sys
 
 from io_utils import get_spark, read_raw_parquet, write_parquet
@@ -110,6 +112,7 @@ def clean_fhvhv(df: DataFrame) -> DataFrame:
     return conform_to_canon(df)
 
 
+# Main Function, DAG arguments received here.
 if __name__ == "__main__":
     trip_type = sys.argv[1]
     input_path = sys.argv[2]

@@ -1,3 +1,4 @@
+# enrich_trips.py is used to add analytical rows using existing rows.
 import sys
 
 from io_utils import get_spark, read_parquet, write_parquet
@@ -35,6 +36,7 @@ def time_metrics(df: DataFrame) -> DataFrame:
             / 60
         ),
     )
+    # Additional Filter Added to Filter out Bad Rows
     df = df.filter(
         (f.col("trip_duration_min") >= 0.5)
         & (f.col("trip_duration_min") <= 600)
@@ -147,6 +149,7 @@ def enrich_trips(spark: SparkSession, df: DataFrame, taxi_type: str) -> DataFram
     return df
 
 
+# Main Function, DAG arguments received here.
 if __name__ == "__main__":
     trip_type = sys.argv[1]
     input_path = sys.argv[2]

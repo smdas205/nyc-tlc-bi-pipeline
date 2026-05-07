@@ -1,10 +1,12 @@
-# spark/jobs/io_utils.py
+# io_utils.py is not used by DAG file.
+# This script is used only for easy access to Pyspark.
 import os
 import shutil
 
 from pyspark.sql import DataFrame, SparkSession
 
 
+# PySpark Declaration
 def get_spark(trip_type: str) -> SparkSession:
     return (
         SparkSession.builder.appName(f"nyc_tlc_{trip_type}")
@@ -14,6 +16,7 @@ def get_spark(trip_type: str) -> SparkSession:
     )
 
 
+# Function to read downloaded PARQUET files
 def read_raw_parquet(
     spark: SparkSession, trip_type: str, path: str, year_month: str
 ) -> DataFrame:
@@ -21,10 +24,12 @@ def read_raw_parquet(
     return spark.read.parquet(pattern)
 
 
+# Function to read PARQUET files from temp path
 def read_parquet(spark: SparkSession, path: str) -> DataFrame:
     return spark.read.parquet(path)
 
 
+# Function to write PARQUET files in overwrite mode
 def write_parquet(df: DataFrame, path: str) -> None:
     if os.path.exists(path):
         shutil.rmtree(path, ignore_errors=True)

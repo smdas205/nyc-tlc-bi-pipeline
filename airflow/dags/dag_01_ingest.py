@@ -7,14 +7,14 @@ from airflow.providers.redis.hooks.redis import RedisHook
 from airflow.utils.task_group import TaskGroup
 
 from airflow import DAG
+from spark.jobs.ingest_tlc import download
 
 parent_path = os.path.abspath("/opt/airflow/")
 
 if parent_path not in sys.path:
     sys.path.append(parent_path)
 
-from spark_jobs.ingest_tlc import download
-
+# DAG to download files from NYC TLC server
 with DAG(
     dag_id="ingest_tlc_files",
     start_date=datetime(2022, 1, 1),
@@ -22,6 +22,8 @@ with DAG(
     max_active_runs=1,
     catchup=False,
 ) as dag:
+    """ Functions for different taxi types.
+    Each function calls the script with its own taxi type. """
 
     def download_yellow(**context):
         hook = RedisHook(redis_conn_id="redis_default")
@@ -59,6 +61,7 @@ with DAG(
         label = execution_date.strftime("%Y-%m")
         download(r, "fhvhv", year, month, label)
 
+    # Task Groups for all types
     with TaskGroup("yellow") as tg_yellow:
         PythonOperator(task_id="download_yellow", python_callable=download_yellow)
     with TaskGroup("green") as tg_green:
@@ -68,4 +71,5 @@ with DAG(
     with TaskGroup("fhvhv") as tg_fhvhv:
         PythonOperator(task_id="download_fhvhv", python_callable=download_fhvhv)
 
+    # Order of DAG
     tg_yellow >> tg_green >> tg_fhv >> tg_fhvhv

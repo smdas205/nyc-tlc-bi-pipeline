@@ -1,3 +1,4 @@
+# ingest_tlc.py is used only for downloading files from NYC TLC server.
 import logging
 import os
 import re
@@ -22,9 +23,8 @@ os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 logger = logging.getLogger(__name__)
 
 
-# Redis Sets
-MISSING_SET_KEY = "tlc:missing"
-DOWNLOADED_SET_KEY = "tlc:downloaded"
+# Redis File Status Hash Declaration
+FILE_STATUS_KEY = "tlc:file_status"
 
 
 # Function to Set Filename Redis HSET
@@ -44,8 +44,11 @@ def redis_file_hset(filename: str) -> str:
 # Function to check URL status
 @retry(stop=stop_after_attempt(3), wait=wait_exponential())
 def check(url: str) -> bool:
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
     try:
-        response = requests.head(url, allow_redirects=True, timeout=10)
+        response = requests.head(url, allow_redirects=True, timeout=10, headers=headers)
         if response.status_code == 200:
             logger.info(f"File Exists at {url}")
         return response.status_code == 200
@@ -57,6 +60,7 @@ def check(url: str) -> bool:
 # Function to Download Files from URL in chunks
 def download_files(url: str, dest_path: str) -> bool:
     try:
+        # Header to bypass bot detection during download
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
@@ -91,27 +95,41 @@ def parse_files(file_path: str) -> dict[str, str]:
 
 # Function to Mark Missing Files in URLs
 def mark_missing(r: redis.Redis, file_type: str, year: int, month: str) -> None:
-    result = r.sadd(MISSING_SET_KEY, f"{file_type}:{year}:{month}")
+    file_member = f"{file_type}:{year}:{month}"
+    result = r.hset(FILE_STATUS_KEY, file_member, "missing")
     if result == 1:
-        logger.info(f"Added to {MISSING_SET_KEY} : {file_type} : {year} : {month}")
+        logger.info(
+            f"Added to {FILE_STATUS_KEY} : {file_type} : {year} : {month} : missing"
+        )
     elif result == 0:
-        logger.info(f"Key already added to {MISSING_SET_KEY}.")
+        logger.info(
+            f"Missing key already added to {FILE_STATUS_KEY} : {file_type} : {year} : {month}."
+        )
     else:
-        logger.error(f"Failed to add to {MISSING_SET_KEY}.")
+        logger.error(
+            f"Failed to add to {FILE_STATUS_KEY} : {file_type} : {year} : {month}."
+        )
 
 
-# Function to Mark Downloaded Files in URLs
+# Function to Mark Downloaded Files from URLs
 def mark_download(r: redis.Redis, file_type: str, year: int, month: str) -> None:
-    result = r.sadd(DOWNLOADED_SET_KEY, f"{file_type}:{year}:{month}")
+    file_member = f"{file_type}:{year}:{month}"
+    result = r.hset(FILE_STATUS_KEY, file_member, "downloaded")
     if result == 1:
-        logger.info(f"Added to {DOWNLOADED_SET_KEY} : {file_type} : {year} : {month}")
+        logger.info(
+            f"Added to {FILE_STATUS_KEY} : {file_type} : {year} : {month} : downloaded"
+        )
     elif result == 0:
-        logger.info(f"Key already added to {DOWNLOADED_SET_KEY}.")
+        logger.info(
+            f"Download key already added to {FILE_STATUS_KEY} : {file_type} : {year} : {month}."
+        )
     else:
-        logger.error(f"Failed to add to {DOWNLOADED_SET_KEY}.")
+        logger.error(
+            f"Failed to add to {FILE_STATUS_KEY} : {file_type} : {year} : {month}."
+        )
 
 
-# Function to Add File Metadata to Redis Hash
+# Function to Add File Metadata to Redis File Hash
 def add_file_data(r: redis.Redis, filename: str, metadata: dict) -> None:
     try:
         file_hash = redis_file_hset(filename)
@@ -124,29 +142,48 @@ def add_file_data(r: redis.Redis, filename: str, metadata: dict) -> None:
         logger.error(f"Redis Error while adding file data: {e}")
 
 
-# Main Function
+# Main Function, to be called by DAG function
 def download(
     r: redis.Redis, file_type: str, year: int, month: str, label: str, **kwargs
 ) -> None:
+    if check_redis(r):
+        print("Redis Connected.")
+    else:
+        sys.exit("Error: Redis Not Connected.")
 
     logger.info(f"Starting execution for trip file_type: {file_type} for {label}:")
-    try:
-        url = f"{DOWNLOAD_URL}{file_type}_tripdata_{label}.parquet"
-        file_name = f"{file_type}_tripdata_{label}.parquet"
-        full_file_path = f"{DOWNLOAD_FOLDER}{file_type}_tripdata_{label}.parquet"
-        if check_redis(r):
-            print("Redis Connected.")
-        else:
-            sys.exit("Error: Redis Not Connected.")
-        if not check(url):
-            mark_missing(r, file_type, year, month)
-        elif check(url):
-            if download_files(url, full_file_path) and parquet_check(full_file_path):
-                mark_download(r, file_type, year, month)
-                add_file_data(r, file_name, parse_files(full_file_path))
+
+    downloaded_file_path = f"{DOWNLOAD_FOLDER}{file_type}_tripdata_{label}.parquet"
+
+    if Path(downloaded_file_path).exists() and parquet_check(downloaded_file_path):
+        logger.info(
+            f"File already exists at {downloaded_file_path} and is valid, skipping download."
+        )
+        mark_download(r, file_type, year, month)
+        add_file_data(
+            r,
+            f"{file_type}_tripdata_{label}.parquet",
+            parse_files(downloaded_file_path),
+        )
+
+    else:
+        try:
+            url = f"{DOWNLOAD_URL}{file_type}_tripdata_{label}.parquet"
+            file_name = f"{file_type}_tripdata_{label}.parquet"
+            full_file_path = f"{DOWNLOAD_FOLDER}{file_type}_tripdata_{label}.parquet"
+
+            if not check(url):
+                mark_missing(r, file_type, year, month)
             else:
-                Path(full_file_path).unlink(missing_ok=True)
-                logger.error(f"File not saved : {file_type},{year},{month}")
-    except Exception as e:
-        logger.error(f"Error during execution: {e}")
-        raise
+                if download_files(url, full_file_path) and parquet_check(
+                    full_file_path
+                ):
+                    mark_download(r, file_type, year, month)
+                    add_file_data(r, file_name, parse_files(full_file_path))
+                else:
+                    logger.error(
+                        f"File not saved or downloaded : {file_type},{year},{month}"
+                    )
+        except Exception as e:
+            logger.error(f"Error during execution: {e}")
+            raise
