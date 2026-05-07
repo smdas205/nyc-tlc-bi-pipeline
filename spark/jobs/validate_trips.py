@@ -66,20 +66,10 @@ if __name__ == "__main__":
 
     spark = get_spark(trip_type)
     df = read_parquet(spark, input_path)
-    # Try-Except Block to Shift Bad Files to Quarantine
-    try:
-        if trip_type == "fhv":
-            expect_fhv(df)
-        else:
-            expect_metered(df, trip_type)
-    except AssertionError as e:
-        import os
-        import shutil
 
-        spark.stop()
-        quarantine_path = input_path.replace("/processed/", "/quarantine/")
-        os.makedirs(quarantine_path, exist_ok=True)
-        shutil.move(input_path, quarantine_path)
-        raise e
-    finally:
-        spark.stop()
+    if trip_type == "fhv":
+        expect_fhv(df)
+    else:
+        expect_metered(df, trip_type)
+
+    spark.stop()
