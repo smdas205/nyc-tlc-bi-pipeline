@@ -85,7 +85,7 @@ with DAG(
                 "yellow",
                 INPUT_PATH,
                 "{{ logical_date.strftime('%Y-%m') }}",
-                TEMP_PATH,
+                TEMP_PATH + "/yellow/{{ logical_date.strftime('%Y-%m') }}",
             ],
             conf={"spark.hadoop.fs.permissions.umask-mode": "000"},
         )
@@ -95,7 +95,7 @@ with DAG(
             application=f"{SCRIPT_PATH}/enrich_trips.py",
             application_args=[
                 "yellow",
-                TEMP_PATH,
+                TEMP_PATH + "/yellow/{{ logical_date.strftime('%Y-%m') }}",
                 OUTPUT_PATH + "/yellow/{{ logical_date.strftime('%Y-%m') }}",
             ],
             conf={"spark.hadoop.fs.permissions.umask-mode": "000"},
@@ -148,7 +148,7 @@ with DAG(
                 "green",
                 INPUT_PATH,
                 "{{ logical_date.strftime('%Y-%m') }}",
-                TEMP_PATH,
+                TEMP_PATH + "/green/{{ logical_date.strftime('%Y-%m') }}",
             ],
             conf={"spark.hadoop.fs.permissions.umask-mode": "000"},
         )
@@ -158,7 +158,7 @@ with DAG(
             application=f"{SCRIPT_PATH}/enrich_trips.py",
             application_args=[
                 "green",
-                TEMP_PATH,
+                TEMP_PATH + "/green/{{ logical_date.strftime('%Y-%m') }}",
                 OUTPUT_PATH + "/green/{{ logical_date.strftime('%Y-%m') }}",
             ],
             conf={"spark.hadoop.fs.permissions.umask-mode": "000"},
@@ -211,7 +211,7 @@ with DAG(
                 "fhv",
                 INPUT_PATH,
                 "{{ logical_date.strftime('%Y-%m') }}",
-                TEMP_PATH,
+                TEMP_PATH + "/fhv/{{ logical_date.strftime('%Y-%m') }}",
             ],
             conf={"spark.hadoop.fs.permissions.umask-mode": "000"},
         )
@@ -221,7 +221,7 @@ with DAG(
             application=f"{SCRIPT_PATH}/enrich_trips.py",
             application_args=[
                 "fhv",
-                TEMP_PATH,
+                TEMP_PATH + "/fhv/{{ logical_date.strftime('%Y-%m') }}",
                 OUTPUT_PATH + "/fhv/{{ logical_date.strftime('%Y-%m') }}",
             ],
             conf={"spark.hadoop.fs.permissions.umask-mode": "000"},
@@ -274,7 +274,7 @@ with DAG(
                 "fhvhv",
                 INPUT_PATH,
                 "{{ logical_date.strftime('%Y-%m') }}",
-                TEMP_PATH,
+                TEMP_PATH + "/fhvhv/{{ logical_date.strftime('%Y-%m') }}",
             ],
             conf={
                 "spark.executor.memory": "1900m",
@@ -287,7 +287,7 @@ with DAG(
             application=f"{SCRIPT_PATH}/enrich_trips.py",
             application_args=[
                 "fhvhv",
-                TEMP_PATH,
+                TEMP_PATH + "/fhvhv/{{ logical_date.strftime('%Y-%m') }}",
                 OUTPUT_PATH + "/fhvhv/{{ logical_date.strftime('%Y-%m') }}",
             ],
             conf={
