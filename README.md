@@ -15,7 +15,7 @@ This is an in-progress data analysis project, which takes all four datasets (*Ye
 ### **Project Roadmap**:
 - [x] Installation of all softwares using Docker
 - [x] Ingestion of datasets from NYC TLC server (Data Extraction)
-- [x] Cleaning and Enriching of datasets using PySpark (Data Transformation)
+- [x] Cleaning and Enrichment of datasets using PySpark (Data Transformation)
 - [ ] Loading of datasets to PostgreSQL database (Data Loading)
 - [ ] Orchestrating all scripts to automate using Airflow (Data Orchestration)
 - [ ] Linking of PostgreSQL database with Power BI
