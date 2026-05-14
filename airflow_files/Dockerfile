@@ -1,4 +1,4 @@
-FROM apache/airflow:2.9.2
+FROM apache/airflow:3.2.1-python3.12
 
 # Switch to root to install system-level deps (e.g. for psycopg2)
 USER root
@@ -15,4 +15,6 @@ ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 USER airflow
 
 COPY requirements-airflow.txt /tmp/requirements-airflow.txt
-RUN pip install --no-cache-dir -r /tmp/requirements-airflow.txt
+RUN pip install --no-cache-dir \
+    -r /tmp/requirements-airflow.txt \
+    --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-3.2.1/constraints-3.12.txt"

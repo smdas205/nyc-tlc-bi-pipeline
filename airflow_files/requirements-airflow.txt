@@ -1,0 +1,16 @@
+apache-airflow==3.2.1
+pyspark==3.5.1
+pandas==2.3.3
+pyarrow==23.0.1
+psycopg2-binary==2.9.11
+redis==6.4.0
+hiredis==3.3.0
+requests==2.33.1
+apache-airflow-providers-apache-spark
+apache-airflow-providers-postgres
+apache-airflow-providers-redis
+apache-airflow-providers-celery
+apache-airflow-providers-http
+tenacity==9.1.4
+pendulum==3.2.0
+python-dotenv==1.2.2
