@@ -88,44 +88,6 @@ def time_metrics(df: DataFrame) -> DataFrame:
     return df
 
 
-# Function to Add Zone Based Metrics to All Datasets using NYC Taxi Zone Lookup
-def zone_metrics(spark: SparkSession, df: DataFrame) -> DataFrame:
-    df = df.drop("pickup_borough", "pickup_zone", "dropoff_borough", "dropoff_zone")
-    pickup_csv = (
-        spark.read.csv(
-            "/opt/spark/data/raw/taxi_zone_lookup.csv",
-            inferSchema=True,
-            header=True,
-        )
-        .withColumnRenamed("Borough", "pickup_borough")
-        .withColumnRenamed("Zone", "pickup_zone")
-    )
-
-    df_join_pickup = df.join(
-        pickup_csv.select("LocationID", "pickup_borough", "pickup_zone"),
-        on=df["pu_location_id"] == pickup_csv["LocationID"],
-        how="left",
-    ).drop("LocationID")
-
-    dropoff_csv = (
-        spark.read.csv(
-            "/opt/spark/data/raw/taxi_zone_lookup.csv",
-            inferSchema=True,
-            header=True,
-        )
-        .withColumnRenamed("Borough", "dropoff_borough")
-        .withColumnRenamed("Zone", "dropoff_zone")
-    )
-
-    df_join_dropoff = df_join_pickup.join(
-        dropoff_csv.select("LocationID", "dropoff_borough", "dropoff_zone"),
-        on=df_join_pickup["do_location_id"] == dropoff_csv["LocationID"],
-        how="left",
-    ).drop("LocationID")
-
-    return df_join_dropoff
-
-
 # Function to Add Driver Pay Metrics for High Volume For Hire Vehicles Dataset
 def add_pay_metrics(df: DataFrame) -> DataFrame:
     df = df.withColumn("platform_take", f.col("core_fare") - f.col("driver_pay"))
@@ -145,7 +107,6 @@ def enrich_trips(spark: SparkSession, df: DataFrame, taxi_type: str) -> DataFram
     elif taxi_type == "fhvhv":
         df = add_pay_metrics(df)
     df = time_metrics(df)
-    df = zone_metrics(spark, df)
     return df
 
 
