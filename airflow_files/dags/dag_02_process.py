@@ -1,16 +1,14 @@
 import logging
 import os
-from datetime import datetime
 
-from airflow.operators.bash import BashOperator
-from airflow.operators.python import ShortCircuitOperator
+import pendulum
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.providers.redis.hooks.redis import RedisHook
-from airflow.utils.task_group import TaskGroup
+from airflow.providers.standard.operators.bash import BashOperator
+from airflow.providers.standard.operators.python import ShortCircuitOperator
+from airflow.sdk import DAG, TaskGroup
 
-from airflow import DAG
-
-SCRIPT_PATH = "/opt/airflow/spark_jobs"
+SCRIPT_PATH = "/opt/airflow/spark/jobs"
 INPUT_PATH = "/opt/spark/data/raw"
 TEMP_PATH = "/opt/spark/data/tmp"
 OUTPUT_PATH = "/opt/spark/data/processed"
@@ -18,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 default_args = {
     "owner": "airflow",
-    "start_date": datetime(2022, 1, 1),
+    "start_date": pendulum.datetime(2022, 1, 1, tz="America/New_York"),
     "retries": 1,
 }
 
@@ -56,7 +54,7 @@ def processing_query(trip_type: str, output_path: str, **context) -> bool:
 with DAG(
     dag_id="process_tlc_files",
     default_args=default_args,
-    schedule_interval="@monthly",
+    schedule="@monthly",
     max_active_runs=1,
     max_active_tasks=1,
     catchup=False,
@@ -112,7 +110,9 @@ with DAG(
         )
         cleanup_yellow = BashOperator(
             task_id="cleanup_yellow",
-            bash_command="rm -rf " + TEMP_PATH,
+            bash_command="rm -rf "
+            + TEMP_PATH
+            + "/yellow/{{ logical_date.strftime('%Y-%m') }}",
             trigger_rule="all_success",
         )
         (
@@ -175,7 +175,9 @@ with DAG(
         )
         cleanup_green = BashOperator(
             task_id="cleanup_green",
-            bash_command="rm -rf " + TEMP_PATH,
+            bash_command="rm -rf "
+            + TEMP_PATH
+            + "/green/{{ logical_date.strftime('%Y-%m') }}",
             trigger_rule="all_success",
         )
         (
@@ -238,7 +240,9 @@ with DAG(
         )
         cleanup_fhv = BashOperator(
             task_id="cleanup_fhv",
-            bash_command="rm -rf " + TEMP_PATH,
+            bash_command="rm -rf "
+            + TEMP_PATH
+            + "/fhv/{{ logical_date.strftime('%Y-%m') }}",
             trigger_rule="all_success",
         )
         (
@@ -310,7 +314,9 @@ with DAG(
         )
         cleanup_fhvhv = BashOperator(
             task_id="cleanup_fhvhv",
-            bash_command="rm -rf " + TEMP_PATH,
+            bash_command="rm -rf "
+            + TEMP_PATH
+            + "/fhvhv/{{ logical_date.strftime('%Y-%m') }}",
             trigger_rule="all_success",
         )
         (

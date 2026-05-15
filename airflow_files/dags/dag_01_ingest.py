@@ -1,23 +1,22 @@
 import os
 import sys
-from datetime import datetime
 
-from airflow.operators.python import PythonOperator
+import pendulum
 from airflow.providers.redis.hooks.redis import RedisHook
-from airflow.utils.task_group import TaskGroup
-
-from airflow import DAG
-from spark.jobs.ingest_tlc import download
+from airflow.providers.standard.operators.python import PythonOperator
+from airflow.sdk import DAG, TaskGroup
 
 parent_path = os.path.abspath("/opt/airflow/")
 
 if parent_path not in sys.path:
     sys.path.append(parent_path)
 
+from spark.jobs.ingest_tlc import download
+
 # DAG to download files from NYC TLC server
 with DAG(
     dag_id="ingest_tlc_files",
-    start_date=datetime(2022, 1, 1),
+    start_date=pendulum.datetime(2022, 1, 1, tz="America/New_York"),
     schedule="@monthly",
     max_active_runs=1,
     catchup=False,
