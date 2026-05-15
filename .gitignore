@@ -8,6 +8,8 @@ test_file.py
 data/raw/
 data/tmp/
 data/processed/
-airflow/logs
-airflow/plugins
-airflow/dags/__pycache__/
+airflow_files/logs
+airflow_files/plugins
+airflow_files/dags/__pycache__/
+spark/jobs/__pycache__/
+docker-compose.yaml
