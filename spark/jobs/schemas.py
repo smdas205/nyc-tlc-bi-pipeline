@@ -50,7 +50,6 @@ CANONICAL_SCHEMA = StructType(
         StructField("airport_fee", DoubleType(), True),
         StructField("tips", DoubleType(), True),
         StructField("cbd_congestion_fee", DoubleType(), True),
-        StructField("ehail_fee", IntegerType(), True),
         StructField("total_amount", DoubleType(), True),
         StructField("driver_pay", DoubleType(), True),
         StructField("tip_percent", DoubleType(), True),

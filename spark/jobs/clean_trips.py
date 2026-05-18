@@ -23,6 +23,7 @@ def conform_to_canon(df: DataFrame) -> DataFrame:
 
 # Function to clean Yellow Taxis Datasets
 def clean_yellow(df: DataFrame) -> DataFrame:
+    df = df.drop(F.col("total_amount"))
     df = df.withColumnRenamed("VendorID", "vendor_id")
     df = df.withColumnRenamed("tpep_pickup_datetime", "pickup_datetime")
     df = df.withColumnRenamed("tpep_dropoff_datetime", "dropoff_datetime")
@@ -33,14 +34,19 @@ def clean_yellow(df: DataFrame) -> DataFrame:
     df = df.withColumnRenamed("tip_amount", "tips")
     df = df.filter(
         (F.col("payment_type") >= 0)
-        & (F.col("core_fare") >= 0)
-        & (F.col("extra") >= 0)
-        & (F.col("mta_tax") >= 0)
-        & (F.col("tips") >= 0)
-        & (F.col("tolls_amount") >= 0)
-        & (F.col("improvement_surcharge") >= 0)
-        & (F.col("total_amount") >= 0)
-        & (F.col("congestion_surcharge") >= 0)
+        & ((F.col("core_fare") >= 0) | F.col("core_fare").isNull())
+        & ((F.col("extra") >= 0) | F.col("extra").isNull())
+        & ((F.col("mta_tax") >= 0) | F.col("mta_tax").isNull())
+        & ((F.col("tips") >= 0) | F.col("tips").isNull())
+        & ((F.col("tolls_amount") >= 0) | F.col("tolls_amount").isNull())
+        & (
+            (F.col("improvement_surcharge") >= 0)
+            | F.col("improvement_surcharge").isNull()
+        )
+        & (
+            (F.col("congestion_surcharge") >= 0)
+            | F.col("congestion_surcharge").isNull()
+        )
         & (F.col("passenger_count") >= 1)
         & (F.col("trip_distance") > 0)
     )
@@ -55,6 +61,8 @@ def clean_yellow(df: DataFrame) -> DataFrame:
 
 # Function to clean Green Taxi Datasets
 def clean_green(df: DataFrame) -> DataFrame:
+    df = df.drop(F.col("ehail_fee"))
+    df = df.drop(F.col("total_amount"))
     df = df.withColumnRenamed("VendorID", "vendor_id")
     df = df.withColumnRenamed("lpep_pickup_datetime", "pickup_datetime")
     df = df.withColumnRenamed("lpep_dropoff_datetime", "dropoff_datetime")
@@ -65,14 +73,19 @@ def clean_green(df: DataFrame) -> DataFrame:
     df = df.withColumnRenamed("tip_amount", "tips")
     df = df.filter(
         (F.col("payment_type") >= 0)
-        & (F.col("core_fare") >= 0)
-        & (F.col("extra") >= 0)
-        & (F.col("mta_tax") >= 0)
-        & (F.col("tips") >= 0)
-        & (F.col("tolls_amount") >= 0)
-        & (F.col("improvement_surcharge") >= 0)
-        & (F.col("total_amount") >= 0)
-        & (F.col("congestion_surcharge") >= 0)
+        & ((F.col("core_fare") >= 0) | F.col("core_fare").isNull())
+        & ((F.col("extra") >= 0) | F.col("extra").isNull())
+        & ((F.col("mta_tax") >= 0) | F.col("mta_tax").isNull())
+        & ((F.col("tips") >= 0) | F.col("tips").isNull())
+        & ((F.col("tolls_amount") >= 0) | F.col("tolls_amount").isNull())
+        & (
+            (F.col("improvement_surcharge") >= 0)
+            | F.col("improvement_surcharge").isNull()
+        )
+        & (
+            (F.col("congestion_surcharge") >= 0)
+            | F.col("congestion_surcharge").isNull()
+        )
         & (F.col("passenger_count") >= 1)
         & (F.col("trip_distance") > 0)
     )
@@ -99,14 +112,17 @@ def clean_fhvhv(df: DataFrame) -> DataFrame:
     df = df.withColumnRenamed("base_passenger_fare", "core_fare")
     df = df.withColumnRenamed("tolls", "tolls_amount")
     df = df.filter(
-        (F.col("core_fare") >= 0)
-        & (F.col("bcf") >= 0)
-        & (F.col("sales_tax") >= 0)
-        & (F.col("tips") >= 0)
-        & (F.col("tolls_amount") >= 0)
-        & (F.col("airport_fee") >= 0)
-        & (F.col("congestion_surcharge") >= 0)
-        & (F.col("driver_pay") >= 0)
+        ((F.col("core_fare") >= 0) | F.col("core_fare").isNull())
+        & ((F.col("bcf") >= 0) | F.col("bcf").isNull())
+        & ((F.col("sales_tax") >= 0) | F.col("sales_tax").isNull())
+        & ((F.col("tips") >= 0) | F.col("tips").isNull())
+        & ((F.col("tolls_amount") >= 0) | F.col("tolls_amount").isNull())
+        & ((F.col("airport_fee") >= 0) | F.col("airport_fee").isNull())
+        & (
+            (F.col("congestion_surcharge") >= 0)
+            | F.col("congestion_surcharge").isNull()
+        )
+        & ((F.col("driver_pay") >= 0) | F.col("driver_pay").isNull())
     )
     df = df.withColumn("taxi_type", F.lit("fhvhv"))
     return conform_to_canon(df)

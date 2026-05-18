@@ -8,17 +8,33 @@ from pyspark.sql import functions as f
 
 # Function to Add Rate Metrics to Yellow/Green Datasets
 def add_rate_metrics(df: DataFrame) -> DataFrame:
-    df = df.filter((f.col("core_fare") > 0) & (f.col("core_fare") <= 500))
+    df = df.filter(f.col("core_fare") <= 1000)
+    df = df.withColumn(
+        "total_amount",
+        f.col("core_fare")
+        + f.col("extra")
+        + f.col("mta_tax")
+        + f.col("tips")
+        + f.col("tolls_amount")
+        + f.col("bcf")
+        + f.col("sales_tax")
+        + f.col("improvement_surcharge")
+        + f.col("congestion_surcharge")
+        + f.col("airport_fee")
+        + f.col("cbd_congestion_fee"),
+    )
     df = df.withColumn(
         "fare_per_mile",
         f.when(
-            f.col("trip_distance") > 0, f.col("core_fare") / f.col("trip_distance")
+            f.col("trip_distance") > 0,
+            f.round((f.col("core_fare") / f.col("trip_distance")), 2),
         ).otherwise(None),
     )
     df = df.withColumn(
         "tip_percent",
         f.when(
-            f.col("core_fare") > 0, f.col("tips") / f.col("core_fare") * 100
+            f.col("core_fare") > 0,
+            f.round((f.col("tips") / f.col("core_fare") * 100), 2),
         ).otherwise(None),
     )
     return df
@@ -27,14 +43,18 @@ def add_rate_metrics(df: DataFrame) -> DataFrame:
 # Function to add Time Metrics to All Datasets
 def time_metrics(df: DataFrame) -> DataFrame:
     df = df.withColumn(
-        "trip_duration_min",
-        (
+        "trip_time",
+        f.when(
+            f.col("trip_time").isNull(),
             (
                 f.col("dropoff_datetime").cast("long")
                 - f.col("pickup_datetime").cast("long")
-            )
-            / 60
-        ),
+            ),
+        ).otherwise(f.col("trip_time")),
+    )
+    df = df.withColumn(
+        "trip_duration_min",
+        (f.col("trip_time") / 60),
     )
     # Additional Filter Added to Filter out Bad Rows
     df = df.filter(
@@ -46,7 +66,7 @@ def time_metrics(df: DataFrame) -> DataFrame:
         "avg_speed_mph",
         f.when(
             (f.col("trip_distance") > 0) & (f.col("trip_duration_min") > 0),
-            (f.col("trip_distance") / (f.col("trip_duration_min") / 60)),
+            f.round((f.col("trip_distance") / (f.col("trip_duration_min") / 60)), 3),
         ).otherwise(None),
     )
     df = df.withColumn(
@@ -94,16 +114,74 @@ def add_pay_metrics(df: DataFrame) -> DataFrame:
     df = df.withColumn(
         "driver_pay_per_mile",
         f.when(
-            f.col("trip_distance") > 0, f.col("driver_pay") / f.col("trip_distance")
+            f.col("trip_distance") > 0,
+            f.round((f.col("driver_pay") / f.col("trip_distance")), 2),
         ).otherwise(None),
+    )
+    df = df.withColumn(
+        "fare_per_mile",
+        f.when(
+            f.col("trip_distance") > 0,
+            f.round((f.col("core_fare") / f.col("trip_distance")), 2),
+        ).otherwise(None),
+    )
+    df = df.withColumn(
+        "tip_percent",
+        f.when(
+            f.col("core_fare") > 0,
+            f.round((f.col("tips") / f.col("core_fare") * 100), 2),
+        ).otherwise(None),
+    )
+    df = df.withColumn(
+        "total_amount",
+        f.col("core_fare")
+        + f.col("extra")
+        + f.col("mta_tax")
+        + f.col("tips")
+        + f.col("tolls_amount")
+        + f.col("bcf")
+        + f.col("sales_tax")
+        + f.col("improvement_surcharge")
+        + f.col("congestion_surcharge")
+        + f.col("airport_fee")
+        + f.col("cbd_congestion_fee"),
+    )
+    return df
+
+
+# Function to correct NULL values in FHV datasets:
+def enrich_fhv(df: DataFrame) -> DataFrame:
+    df = df.fillna({"pu_location_id": 264, "do_location_id": 264})
+    return df
+
+
+# Function to change NULL values of rate columns to zero
+def change_rate_nulls(df: DataFrame) -> DataFrame:
+    df = df.fillna(
+        {
+            "core_fare": 0,
+            "extra": 0,
+            "mta_tax": 0,
+            "tolls_amount": 0,
+            "bcf": 0,
+            "sales_tax": 0,
+            "improvement_surcharge": 0,
+            "congestion_surcharge": 0,
+            "airport_fee": 0,
+            "tips": 0,
+            "cbd_congestion_fee": 0,
+        }
     )
     return df
 
 
 # Function to Enrich Trips
 def enrich_trips(spark: SparkSession, df: DataFrame, taxi_type: str) -> DataFrame:
+    df = change_rate_nulls(df)
     if taxi_type in ("yellow", "green"):
         df = add_rate_metrics(df)
+    elif taxi_type == "fhv":
+        df = enrich_fhv(df)
     elif taxi_type == "fhvhv":
         df = add_pay_metrics(df)
     df = time_metrics(df)

@@ -42,7 +42,23 @@ def _assert_min_rows(df: DataFrame, threshold: int, taxi_type: str) -> None:
 def expect_metered(df: DataFrame, taxi_type: str) -> DataFrame:
     _assert_no_nulls(
         df,
-        ["pickup_datetime", "dropoff_datetime", "pu_location_id", "do_location_id"],
+        [
+            "pickup_datetime",
+            "dropoff_datetime",
+            "pu_location_id",
+            "do_location_id",
+            "core_fare",
+            "extra",
+            "mta_tax",
+            "tolls_amount",
+            "bcf",
+            "sales_tax",
+            "improvement_surcharge",
+            "congestion_surcharge",
+            "airport_fee",
+            "tips",
+            "cbd_congestion_fee",
+        ],
         taxi_type,
     )
     _assert_between(df, "trip_duration_min", 0.5, 600, taxi_type)
