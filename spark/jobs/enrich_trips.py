@@ -10,7 +10,7 @@ from pyspark.sql import functions as f
 def add_rate_metrics(df: DataFrame) -> DataFrame:
     df = df.filter(f.col("core_fare") <= 1000)
     df = df.withColumn(
-        "total_amount",
+        "calculated_total_amount",
         f.col("core_fare")
         + f.col("extra")
         + f.col("mta_tax")
@@ -133,7 +133,7 @@ def add_pay_metrics(df: DataFrame) -> DataFrame:
         ).otherwise(None),
     )
     df = df.withColumn(
-        "total_amount",
+        "calculated_total_amount",
         f.col("core_fare")
         + f.col("extra")
         + f.col("mta_tax")
