@@ -14,3 +14,4 @@ airflow_files/dags/__pycache__/
 spark/jobs/__pycache__/
 docker-compose.yaml
 processed_schema_json/
+postgres/init/test.sql
