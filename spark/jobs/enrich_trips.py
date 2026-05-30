@@ -175,6 +175,26 @@ def change_rate_nulls(df: DataFrame) -> DataFrame:
     return df
 
 
+# Function to convert Y/N columns to Boolean
+def change_yn_to_bool(df: DataFrame) -> DataFrame:
+    target_columns = [
+        "shared_request_flag",
+        "shared_match_flag",
+        "access_a_ride_flag",
+        "wav_request_flag",
+        "wav_match_flag",
+    ]
+    df = df.withColumns(
+        {
+            bool_col: f.when(f.upper(f.trim(f.col(bool_col))) == "Y", True).otherwise(
+                False
+            )
+            for bool_col in target_columns
+        }
+    )
+    return df
+
+
 # Function to Enrich Trips
 def enrich_trips(spark: SparkSession, df: DataFrame, taxi_type: str) -> DataFrame:
     df = change_rate_nulls(df)
@@ -184,6 +204,7 @@ def enrich_trips(spark: SparkSession, df: DataFrame, taxi_type: str) -> DataFram
         df = enrich_fhv(df)
     elif taxi_type == "fhvhv":
         df = add_pay_metrics(df)
+        df = change_yn_to_bool(df)
     df = time_metrics(df)
     return df
 

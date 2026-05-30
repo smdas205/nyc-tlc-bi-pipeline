@@ -4,6 +4,7 @@ import sys
 import pyspark.sql.functions as F
 from io_utils import get_spark, read_parquet
 from pyspark.sql import DataFrame
+from pyspark.sql.types import BooleanType
 
 
 # Function to check for no nulls in enriched file for specific rows
@@ -38,6 +39,19 @@ def _assert_min_rows(df: DataFrame, threshold: int, taxi_type: str) -> None:
         )
 
 
+# Function to check if mentioned rows are Boolean
+def _assert_bool(df: DataFrame, columns: list[str]) -> None:
+    not_bool_columns = []
+    for col in columns:
+        if not isinstance(df.schema[col].dataType, BooleanType):
+            not_bool_columns.append(col)
+    if not_bool_columns:
+        raise AssertionError(
+            f"{len(not_bool_columns)} columns have data type other than Boolean: {not_bool_columns}"
+        )
+    return None
+
+
 # Function to check if enriched yellow, green and HVFHV datasets are valid
 def expect_metered(df: DataFrame, taxi_type: str) -> DataFrame:
     _assert_no_nulls(
@@ -64,6 +78,17 @@ def expect_metered(df: DataFrame, taxi_type: str) -> DataFrame:
     _assert_between(df, "trip_duration_min", 0.5, 600, taxi_type)
     _assert_between(df, "core_fare", 0.0, 1000, taxi_type)
     _assert_min_rows(df, 1000, taxi_type)
+    if taxi_type == "fhvhv":
+        _assert_bool(
+            df,
+            [
+                "shared_request_flag",
+                "shared_match_flag",
+                "access_a_ride_flag",
+                "wav_request_flag",
+                "wav_match_flag",
+            ],
+        )
     return df
 
 
