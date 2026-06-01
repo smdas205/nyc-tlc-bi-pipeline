@@ -13,14 +13,13 @@ x-airflow-common: &airflow-common
   # image: apache/airflow:3.2.1-python3.12
   environment: &airflow-common-env
     AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://tlc-airflow-api-server:8080/execution/
-    # AIRFLOW__CORE__INTERNAL_API_URL: http://tlc-airflow-api-server:8080
     AIRFLOW__CORE__INTERNAL_API_PROTOCOL: http
     AIRFLOW__API_AUTH__JWT_SECRET: jwt_encrypted_code
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW__CORE__TEST_CONNECTION: "Enabled"
-    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
-    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres:5432/airflow
-    AIRFLOW__CELERY__BROKER_URL: redis://tlc-redis:6379/0
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: DB_NAME
+    AIRFLOW__CELERY__RESULT_BACKEND: CELERY_DB
+    AIRFLOW__CELERY__BROKER_URL: REDIS_DB_0
     AIRFLOW__CORE__FERNET_KEY: "encrypted_code_1"
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
@@ -76,9 +75,9 @@ services:
           memory: 1G
     restart: unless-stopped
     environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
+      POSTGRES_USER: [REDACTED]
+      POSTGRES_PASSWORD: [REDACTED]
+      POSTGRES_DB: [REDACTED]
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d # init SQL: create warehouse DBs
@@ -229,12 +228,12 @@ services:
       <<: *airflow-common-env
       _AIRFLOW_DB_MIGRATE: "true"
       _AIRFLOW_WWW_USER_CREATE: "true"
-      _AIRFLOW_WWW_USER_USERNAME: "admin"
-      _AIRFLOW_WWW_USER_PASSWORD: "admin"
-      _AIRFLOW_WWW_USER_FIRSTNAME: "Admin"
-      _AIRFLOW_WWW_USER_LASTNAME: "TLC"
-      _AIRFLOW_WWW_USER_ROLE: "Admin"
-      _AIRFLOW_WWW_USER_EMAIL: "admin@tlc.local"
+      _AIRFLOW_WWW_USER_USERNAME: [REDACTED]
+      _AIRFLOW_WWW_USER_PASSWORD: [REDACTED]
+      _AIRFLOW_WWW_USER_FIRSTNAME: [REDACTED]
+      _AIRFLOW_WWW_USER_LASTNAME: [REDACTED]
+      _AIRFLOW_WWW_USER_ROLE: [REDACTED]
+      _AIRFLOW_WWW_USER_EMAIL: [REDACTED]
     volumes:
       - ./airflow_files:/sources
     networks:
