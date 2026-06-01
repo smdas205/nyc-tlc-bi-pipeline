@@ -72,7 +72,7 @@ WITH (FORMAT csv, HEADER true);
 
 --6. hvfhs_table
 CREATE TABLE hvfhs_table(
-    hvfhs_license_num VARCHAR(6) PRIMARY KEY,
+    hvfhs_license_num CHAR(6) PRIMARY KEY,
     hvfhs_provider VARCHAR(6) NOT NULL
 );
 
@@ -84,7 +84,7 @@ INSERT INTO hvfhs_table VALUES
 
 --7. base_table (Import CSV to temp table, then select only rows required for analysis)
 CREATE TABLE base_table(
-    base_num VARCHAR(6) PRIMARY KEY,
+    base_num CHAR(6) PRIMARY KEY,
     base_name VARCHAR(128) NOT NULL,
     base_type VARCHAR(40) NOT NULL
 );
