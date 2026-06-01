@@ -12,6 +12,16 @@ airflow_files/logs
 airflow_files/plugins
 airflow_files/dags/__pycache__/
 spark/jobs/__pycache__/
+__pycache__/
 docker-compose.yaml
 processed_schema_json/
-postgres/init/test.sql
+.env
+database.py
+models.py
+parquet_test_copy.py
+test.txt
+alembic.ini
+postgres/alembic/env.py
+postgres/alembic/README
+postgres/alembic/script.py.mako
+postgres/alembic/versions/__pycache__
