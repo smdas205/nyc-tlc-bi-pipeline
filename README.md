@@ -6,7 +6,7 @@ This is an in-progress data analysis project, which takes all four datasets (*Ye
 ### **Softwares**:
 - *Programming Languages* : Python, SQL
 - *Databases* : PostgreSQL
-- *Libraries* : PySpark
+- *Libraries* : PySpark, SQLAlchemy, Alembic
 - *Version Control* : Git
 - *BI Software* : Power BI Desktop
 - *Orchestration* : Apache Airflow
