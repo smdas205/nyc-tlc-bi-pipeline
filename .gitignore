@@ -8,6 +8,7 @@ test_file.py
 data/raw/
 data/tmp/
 data/processed/
+data/base/
 airflow_files/logs
 airflow_files/plugins
 airflow_files/dags/__pycache__/
@@ -28,3 +29,4 @@ postgres/alembic/versions/__pycache__
 jars/
 pyproject.toml
 * copy.py
+postgres/alembic/
