@@ -1,11 +1,11 @@
 # NYC TLC BI Pipeline
 
 ## Introduction
-This is an in-progress data analysis project, which takes all four datasets (*Yellow Taxis*, *Green Taxis*, *For Hire Vehicles* and *High-Volume For Hire Vehicles*) from the New York City Taxi and Limousine Commission, processes it and sends it to Power BI for analytics. Starting point of all datasets is from January 2022.
+This is an in-progress data analysis project, which takes all four datasets (*Yellow Taxis*, *Green Taxis*, *For Hire Vehicles* and *High-Volume For Hire Vehicles*) from the New York City Taxi and Limousine Commission, processes it and sends it to Power BI for analytics. Range of all datasets is from *January 2022* to *December 2023*.
 
 ### **Softwares**:
 - *Programming Languages* : Python, SQL
-- *Databases* : PostgreSQL
+- *Databases* : PostgreSQL, Redis
 - *Libraries* : PySpark, SQLAlchemy, Alembic
 - *Version Control* : Git
 - *BI Software* : Power BI Desktop
@@ -16,7 +16,7 @@ This is an in-progress data analysis project, which takes all four datasets (*Ye
 - [x] Installation of all softwares using Docker
 - [x] Ingestion of datasets from NYC TLC server (Data Extraction)
 - [x] Cleaning and Enrichment of datasets using PySpark (Data Transformation)
-- [ ] Loading of datasets to PostgreSQL database (Data Loading)
+- [x] Proper loading of datasets to PostgreSQL database (Data Loading)
 - [ ] Orchestrating all scripts to automate using Airflow (Data Orchestration)
 - [ ] Linking of PostgreSQL database with Power BI
 - [ ] Analysis and Report Making using Power BI (Data Analysis)
