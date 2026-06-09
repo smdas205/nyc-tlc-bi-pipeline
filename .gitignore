@@ -25,3 +25,6 @@ postgres/alembic/env.py
 postgres/alembic/README
 postgres/alembic/script.py.mako
 postgres/alembic/versions/__pycache__
+jars/
+pyproject.toml
+* copy.py
