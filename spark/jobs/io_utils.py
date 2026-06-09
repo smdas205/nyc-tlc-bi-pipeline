@@ -11,6 +11,7 @@ def get_spark(trip_type: str) -> SparkSession:
     return (
         SparkSession.builder.appName(f"nyc_tlc_{trip_type}")
         .config("spark.hadoop.fs.file.impl", "org.apache.hadoop.fs.RawLocalFileSystem")
+        .config("spark.sql.session.timeZone", "America/New_York")
         .config("spark.hadoop.fs.permissions.umask-mode", "000")
         .getOrCreate()
     )

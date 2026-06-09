@@ -2,6 +2,7 @@
 import sys
 
 from io_utils import get_spark, read_parquet, write_parquet
+
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as f
 
@@ -42,6 +43,11 @@ def add_rate_metrics(df: DataFrame) -> DataFrame:
 
 # Function to add Time Metrics to All Datasets
 def time_metrics(df: DataFrame) -> DataFrame:
+    df = df.filter(
+        (f.year(f.col("pickup_datetime")) >= 2021)
+        & (f.year(f.col("pickup_datetime")) <= 2023)
+    )
+
     df = df.withColumn(
         "trip_time",
         f.when(
@@ -195,6 +201,40 @@ def change_yn_to_bool(df: DataFrame) -> DataFrame:
     return df
 
 
+# Function to omit extra characters from base_num rows in FHV
+def remove_trailing_fhv(df: DataFrame) -> DataFrame:
+    df = df.withColumn(
+        "affiliated_base_num",
+        f.when(
+            f.regexp_extract(f.col("affiliated_base_num"), r"(B\d{5})", 1) == "", None
+        ).otherwise(f.regexp_extract(f.col("affiliated_base_num"), r"(B\d{5})", 1)),
+    )
+    df = df.withColumn(
+        "dispatching_base_num",
+        f.when(
+            f.regexp_extract(f.col("dispatching_base_num"), r"(B\d{5})", 1) == "", None
+        ).otherwise(f.regexp_extract(f.col("dispatching_base_num"), r"(B\d{5})", 1)),
+    )
+    return df
+
+
+# Function to omit extra characters from base_num rows in HVFHV
+def remove_trailing_fhvhv(df: DataFrame) -> DataFrame:
+    df = df.withColumn(
+        "originating_base_num",
+        f.when(
+            f.regexp_extract(f.col("originating_base_num"), r"(B\d{5})", 1) == "", None
+        ).otherwise(f.regexp_extract(f.col("originating_base_num"), r"(B\d{5})", 1)),
+    )
+    df = df.withColumn(
+        "dispatching_base_num",
+        f.when(
+            f.regexp_extract(f.col("dispatching_base_num"), r"(B\d{5})", 1) == "", None
+        ).otherwise(f.regexp_extract(f.col("dispatching_base_num"), r"(B\d{5})", 1)),
+    )
+    return df
+
+
 # Function to Enrich Trips
 def enrich_trips(spark: SparkSession, df: DataFrame, taxi_type: str) -> DataFrame:
     df = change_rate_nulls(df)
@@ -202,9 +242,11 @@ def enrich_trips(spark: SparkSession, df: DataFrame, taxi_type: str) -> DataFram
         df = add_rate_metrics(df)
     elif taxi_type == "fhv":
         df = enrich_fhv(df)
+        df = remove_trailing_fhv(df)
     elif taxi_type == "fhvhv":
         df = add_pay_metrics(df)
         df = change_yn_to_bool(df)
+        df = remove_trailing_fhvhv(df)
     df = time_metrics(df)
     return df
 

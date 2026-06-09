@@ -18,7 +18,7 @@ CANONICAL_SCHEMA = StructType(
         StructField("dispatching_base_num", StringType(), True),
         StructField("originating_base_num", StringType(), True),
         StructField("sr_flag", IntegerType(), True),
-        StructField("affiliated_base_number", StringType(), True),
+        StructField("affiliated_base_num", StringType(), True),
         StructField("store_and_fwd_flag", StringType(), True),
         StructField("request_datetime", TimestampType(), True),
         StructField("on_scene_datetime", TimestampType(), True),
