@@ -17,6 +17,7 @@ from spark.jobs.ingest_tlc import download
 with DAG(
     dag_id="ingest_tlc_files",
     start_date=pendulum.datetime(2022, 1, 1, tz="America/New_York"),
+    end_date=pendulum.datetime(2023, 12, 31, tz="America/New York"),
     schedule="@monthly",
     max_active_runs=1,
     catchup=False,
