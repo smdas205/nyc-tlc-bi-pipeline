@@ -117,6 +117,7 @@ with DAG(
         )
         load_fhvhv = SparkSubmitOperator(
             task_id="load_fhvhv",
+            queue="heavy_queue",
             conn_id="spark_default",
             application=f"{SCRIPT_PATH}/load_fhvhv_fact_table.py",
             application_args=["{{ logical_date.strftime('%Y-%m') }}"],
