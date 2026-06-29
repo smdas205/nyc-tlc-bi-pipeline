@@ -4,7 +4,7 @@
 This is an in-progress data analysis project, which takes all four datasets (*Yellow Taxis*, *Green Taxis*, *For Hire Vehicles* and *High-Volume For Hire Vehicles*) from the New York City Taxi and Limousine Commission, processes it and sends it to Power BI for analytics. Range of all datasets is from *January 2022* to *December 2023*.
 
 ### **Softwares**:
-- *Programming Languages* : Python, SQL
+- *Programming Languages* : Python, SQL, PL/pgSQL
 - *Databases* : PostgreSQL, Redis
 - *Libraries* : PySpark, SQLAlchemy, Alembic
 - *Version Control* : Git
@@ -17,7 +17,8 @@ This is an in-progress data analysis project, which takes all four datasets (*Ye
 - [x] Ingestion of datasets from NYC TLC server (Data Extraction)
 - [x] Cleaning and Enrichment of datasets using PySpark (Data Transformation)
 - [x] Proper loading of datasets to PostgreSQL database (Data Loading)
-- [ ] Orchestrating all scripts to automate using Airflow (Data Orchestration)
+- [x] Orchestrating all scripts to automate using Airflow (Data Orchestration)
+- [ ] Creation of aggregate table for HVFHV datasets using PL/pgSQL
 - [ ] Linking of PostgreSQL database with Power BI
 - [ ] Analysis and Report Making using Power BI (Data Analysis)
 
