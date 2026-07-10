@@ -20,6 +20,6 @@ This is an in-progress data analysis project, which takes all four datasets (*Ye
 - [x] Orchestrating all scripts to automate using Airflow (Data Orchestration)
 - [x] Creation of aggregate table for HVFHV datasets using PL/pgSQL
 - [x] Linking of PostgreSQL database with Power BI
-- [ ] Analysis and Report Making using Power BI (Data Analysis)
+- [ ] Quarterly Analysis and Report Making using Power BI (Data Analysis)
 
 > All scripts to be automated using Apache Airflow.
