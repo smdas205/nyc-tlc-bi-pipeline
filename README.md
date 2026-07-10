@@ -18,8 +18,8 @@ This is an in-progress data analysis project, which takes all four datasets (*Ye
 - [x] Cleaning and Enrichment of datasets using PySpark (Data Transformation)
 - [x] Proper loading of datasets to PostgreSQL database (Data Loading)
 - [x] Orchestrating all scripts to automate using Airflow (Data Orchestration)
-- [ ] Creation of aggregate table for HVFHV datasets using PL/pgSQL
-- [ ] Linking of PostgreSQL database with Power BI
+- [x] Creation of aggregate table for HVFHV datasets using PL/pgSQL
+- [x] Linking of PostgreSQL database with Power BI
 - [ ] Analysis and Report Making using Power BI (Data Analysis)
 
 > All scripts to be automated using Apache Airflow.
