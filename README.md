@@ -45,7 +45,7 @@ This is an in-progress data analysis project, which takes all four datasets (*Ye
 
 ### **5. Orchestration:**
 - Built DAG scripts for ingestion, transformation and loading using Python and Airflow.
-- Using 'TriggerDagRunOperator' in Airflow, built a DAG master orchestration script, creating an ordered pipeline that executes DAG scripts as ingestion > transformation > loading.
+- Using `TriggerDagRunOperator` in Airflow, built a DAG master orchestration script, creating an ordered pipeline that executes DAG scripts as ingestion > transformation > loading.
 - Kept a dedicated heavy_queue in Celery for larger HVFHV workloads.
 - Debugged JWT/Fernet key mismatches, an `UnboundLocalError` in `TriggerDagRunOperator` with `deferrable=True`, and duplicate `run_id` constraint violations along the way.
     
