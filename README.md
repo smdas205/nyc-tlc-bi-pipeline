@@ -4,7 +4,9 @@
 This is an in-progress data analysis project, which takes all four datasets (*Yellow Taxis*, *Green Taxis*, *For Hire Vehicles* and *High-Volume For Hire Vehicles*) from the New York City Taxi and Limousine Commission, processes it and sends it to Power BI for analytics. Range of all datasets is from *January 2022* to *December 2023*.
 
 > PLEASE NOTE:
+> 
 > *MAJOR CHANGE IN FUTURE*
+> 
 > The whole project is being shifted to a cloud based project. This is to primarily save storage in my laptop, since the files generated during the whole pipeline are huge and I have very
 > limited storage in my laptop. Tech stack and project process is going to have significant changes owing to the change to cloud based project.
 
